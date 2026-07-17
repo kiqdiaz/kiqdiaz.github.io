@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>kiqdiaz · Blog</title>
+    <link>https://kiqdiaz.github.io</link>
+    <description>Blog personal de Luis Cueva Díaz sobre desarrollo de software y tecnología</description>
+    <language>es</language>
+    <lastBuildDate>Wed, 16 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://kiqdiaz.github.io/rss.xml" rel="self" type="application/rss+xml"/>
+
+    <item>
+      <title>Ejecutando modelos de IA localmente con Docker: una guía práctica</title>
+      <link>https://kiqdiaz.github.io/blog/docker-model-example.html</link>
+      <description>
+        Docker Model Runner llegó para simplificar cómo corremos LLMs en local.
+        Exploro el proyecto docker-model-example: cómo funciona, qué aprendí y
+        por qué esto cambia la manera en que desarrollo con IA.
+      </description>
+      <pubDate>Wed, 16 Jul 2026 00:00:00 +0000</pubDate>
+      <guid isPermaLink="true">https://kiqdiaz.github.io/blog/docker-model-example.html</guid>
+    </item>
+
+  </channel>
+</rss>

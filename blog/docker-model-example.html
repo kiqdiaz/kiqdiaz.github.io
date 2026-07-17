@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cómo usar Docker Model Runner para ejecutar LLMs localmente sin complicaciones.">
+  <title>Ejecutando modelos de IA con Docker · kiqdiaz</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* ── Article-specific styles ── */
+    .article-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: .88rem;
+      margin-bottom: 36px;
+      transition: color .18s;
+    }
+    .article-back:hover { color: var(--accent-light); }
+
+    .article-header { margin-bottom: 40px; }
+
+    .article-tags { margin-bottom: 14px; }
+    .article-tag {
+      display: inline-block;
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--accent-light);
+      background: rgba(99,102,241,.12);
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-right: 6px;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+    }
+
+    .article-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -.7px;
+      line-height: 1.25;
+      margin-bottom: 14px;
+    }
+
+    .article-meta {
+      color: var(--text-muted);
+      font-size: .85rem;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .article-meta span::before { content: '·'; margin-right: 16px; }
+    .article-meta span:first-child::before { display: none; }
+
+    /* ── Body typography ── */
+    .article-body {
+      max-width: 700px;
+      color: var(--text-secondary);
+      font-size: 1.02rem;
+      line-height: 1.85;
+    }
+
+    .article-body h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 44px 0 14px;
+      letter-spacing: -.3px;
+    }
+
+    .article-body h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 28px 0 10px;
+    }
+
+    .article-body p { margin-bottom: 18px; }
+    .article-body p:last-child { margin-bottom: 0; }
+
+    .article-body a {
+      color: var(--accent-light);
+      text-decoration: none;
+    }
+    .article-body a:hover { text-decoration: underline; }
+
+    .article-body ul, .article-body ol {
+      padding-left: 22px;
+      margin-bottom: 18px;
+    }
+    .article-body li { margin-bottom: 6px; }
+
+    .article-body strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Code blocks */
+    .article-body pre {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+      overflow-x: auto;
+      margin: 20px 0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: .88rem;
+      line-height: 1.65;
+      color: #a5f3fc;
+    }
+
+    .article-body pre .comment { color: var(--text-muted); }
+    .article-body pre .keyword { color: #c084fc; }
+    .article-body pre .string  { color: #86efac; }
+    .article-body pre .flag    { color: #fde68a; }
+
+    /* Callout box */
+    .callout {
+      background: rgba(99,102,241,.07);
+      border: 1px solid rgba(99,102,241,.25);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin: 24px 0;
+      color: var(--text-secondary);
+      font-size: .95rem;
+      line-height: 1.75;
+    }
+    .callout strong { color: var(--accent-light); }
+
+    /* Divider */
+    .article-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="../index.html" class="nav-brand">kiqdiaz</a>
+      <div class="nav-links" id="navLinks">
+        <a href="../index.html" class="nav-link">Home</a>
+        <a href="../index.html#about" class="nav-link" data-section="about">About</a>
+        <a href="../index.html#code"  class="nav-link" data-section="code">Código</a>
+        <a href="../index.html"       class="nav-link active" data-section="blog">Blog</a>
+        <a href="../index.html#rss"   class="nav-link" data-section="rss">RSS</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Menú">&#9776;</button>
+    </nav>
+  </header>
+
+  <main style="max-width: 860px;">
+
+    <a href="../index.html" class="article-back" id="backBtn">
+      ← Volver al blog
+    </a>
+
+    <header class="article-header">
+      <div class="article-tags">
+        <span class="article-tag">Docker</span>
+        <span class="article-tag">IA</span>
+        <span class="article-tag">LLM</span>
+      </div>
+      <h1 class="article-title">
+        Ejecutando modelos de IA localmente con Docker:<br>una guía práctica
+      </h1>
+      <div class="article-meta">
+        <span>Luis Cueva Díaz</span>
+        <span>Julio 2026</span>
+        <span>8 min de lectura</span>
+      </div>
+    </header>
+
+    <article class="article-body">
+
+      <p>
+        Correr un modelo de lenguaje grande (LLM) en tu máquina solía requerir
+        instalar dependencias de Python, administrar entornos virtuales, descargar
+        pesos manualmente y rezar para que las versiones de CUDA no se pelearan entre
+        sí. Docker cambió eso radicalmente con <strong>Docker Model Runner</strong>,
+        y este artículo nació de mi experiencia construyendo
+        <a href="https://github.com/kiqdiaz/docker-model-example" target="_blank" rel="noopener">docker-model-example</a>:
+        un proyecto de referencia que muestra el flujo completo.
+      </p>
+
+      <h2>¿Qué es Docker Model Runner?</h2>
+
+      <p>
+        Introducido en Docker Desktop 4.40 (mayo 2025), Docker Model Runner añade un
+        subcomando <code>docker model</code> que trata a los modelos de IA igual que
+        a cualquier imagen de contenedor: los descargas de un registro, los ejecutas
+        y los integras con tus servicios existentes via API REST compatible con
+        OpenAI.
+      </p>
+
+      <p>
+        El flujo central tiene tres comandos:
+      </p>
+
+      <pre>
+<span class="comment"># 1. Descargar el modelo desde Docker Hub</span>
+docker model pull ai/llama3.2
+
+<span class="comment"># 2. Probarlo en consola interactiva</span>
+docker model run ai/llama3.2
+
+<span class="comment"># 3. Exponerlo como API local (puerto 12434)</span>
+docker model run <span class="flag">--detach</span> ai/llama3.2</pre>
+
+      <div class="callout">
+        <strong>Dato importante:</strong> el endpoint de la API es compatible con
+        el formato de OpenAI, así que cualquier cliente que uses con GPT-4 funciona
+        sin modificaciones apuntando a <code>http://localhost:12434/engines/v1</code>.
+      </div>
+
+      <h2>El proyecto docker-model-example</h2>
+
+      <p>
+        La idea del proyecto es demostrar un caso de uso realista: un servicio web
+        que acepta preguntas, las envía al modelo local y devuelve respuestas, todo
+        dentro de una red Docker aislada. La estructura es deliberadamente simple:
+      </p>
+
+      <pre>
+docker-model-example/
+├── docker-compose.yml
+├── app/
+│   ├── Dockerfile
+│   ├── main.py        <span class="comment"># FastAPI → llama al modelo</span>
+│   └── requirements.txt
+└── README.md</pre>
+
+      <h3>El docker-compose.yml central</h3>
+
+      <p>
+        La clave está en cómo se declara el modelo como un servicio especial con
+        el proveedor <code>model</code>:
+      </p>
+
+      <pre>
+services:
+  <span class="keyword">llm</span>:
+    provider:
+      type: model
+      options:
+        model: ai/llama3.2
+
+  <span class="keyword">app</span>:
+    build: ./app
+    ports:
+      - <span class="string">"8000:8000"</span>
+    environment:
+      - MODEL_ENDPOINT=http://model-runner.docker.internal/engines/v1
+    depends_on:
+      - llm</pre>
+
+      <p>
+        Docker se encarga de descargar el modelo, inicializarlo y exponerlo en la
+        red interna de Docker bajo el hostname
+        <code>model-runner.docker.internal</code>. Tu app solo necesita apuntar ahí.
+      </p>
+
+      <h3>El lado de la aplicación</h3>
+
+      <p>
+        En <code>main.py</code> uso el cliente oficial de OpenAI apuntando al
+        endpoint local. Sin cambiar una sola línea de lógica de negocio:
+      </p>
+
+      <pre>
+<span class="keyword">from</span> openai <span class="keyword">import</span> OpenAI
+
+client = OpenAI(
+    base_url=<span class="string">"http://model-runner.docker.internal/engines/v1"</span>,
+    api_key=<span class="string">"not-needed"</span>,
+)
+
+<span class="keyword">def</span> ask(question: str) -> str:
+    response = client.chat.completions.create(
+        model=<span class="string">"ai/llama3.2"</span>,
+        messages=[{<span class="string">"role"</span>: <span class="string">"user"</span>, <span class="string">"content"</span>: question}],
+    )
+    <span class="keyword">return</span> response.choices[0].message.content</pre>
+
+      <h2>Levantarlo todo con un comando</h2>
+
+      <pre>
+docker compose up
+
+<span class="comment"># Primera ejecución: descarga el modelo (~2 GB)
+# Siguiente: arranca en segundos desde caché</span></pre>
+
+      <p>
+        El modelo se descarga una sola vez y queda cacheado localmente. Las
+        ejecuciones siguientes son casi instantáneas.
+      </p>
+
+      <h2>Lo que aprendí construyendo esto</h2>
+
+      <p>
+        Hay tres cosas que me sorprendieron positivamente:
+      </p>
+
+      <ul>
+        <li>
+          <strong>Cero fricción de dependencias.</strong> No hay conda, no hay
+          <code>pip install torch</code> de 3 GB, no hay conflictos de CUDA. El modelo
+          corre dentro del runtime de Docker y ya.
+        </li>
+        <li>
+          <strong>Aislamiento real.</strong> El modelo solo es accesible dentro de
+          la red Docker. No hay nada escuchando en puertos públicos a menos que tú
+          lo decidas explícitamente.
+        </li>
+        <li>
+          <strong>Portabilidad inmediata.</strong> Cualquier colega con Docker Desktop
+          puede clonar el repo y tener el mismo entorno en minutos. Sin instrucciones
+          de setup de tres páginas.
+        </li>
+      </ul>
+
+      <p>
+        El punto negativo más notable: la primera descarga del modelo es lenta y
+        pesada (Llama 3.2 pesa alrededor de 2 GB). En equipos grandes querrás
+        precargar el modelo en la imagen base o usar un registry interno.
+      </p>
+
+      <hr class="article-divider">
+
+      <h2>¿Cuándo usar esto?</h2>
+
+      <p>
+        Docker Model Runner tiene sentido cuando necesitas:
+      </p>
+
+      <ul>
+        <li>Desarrollar features de IA sin pagar por APIs externas en cada iteración</li>
+        <li>Mantener datos sensibles dentro de tu red (regulaciones, privacidad)</li>
+        <li>Reproducibilidad: el mismo modelo, la misma versión, en todos los entornos</li>
+        <li>Integrar un LLM como un servicio más dentro de un stack Docker Compose existente</li>
+      </ul>
+
+      <p>
+        No es el reemplazo para producción con modelos grandes o alta concurrencia —
+        ahí los modelos como servicio (AWS Bedrock, Vertex AI, etc.) siguen siendo
+        la opción correcta. Pero para desarrollo local y pruebas de concepto, este
+        flujo es imbatible en simplicidad.
+      </p>
+
+      <h2>Próximos pasos</h2>
+
+      <p>
+        El repositorio sigue creciendo. Tengo pendiente:
+      </p>
+
+      <ul>
+        <li>Agregar ejemplos con Phi-3 y Mistral para comparar calidad/velocidad</li>
+        <li>Un ejemplo con streaming de respuestas via Server-Sent Events</li>
+        <li>Métricas básicas de latencia por modelo</li>
+      </ul>
+
+      <p>
+        Si te interesa seguir el progreso, el repo está en
+        <a href="https://github.com/kiqdiaz/docker-model-example" target="_blank" rel="noopener">
+          github.com/kiqdiaz/docker-model-example
+        </a>
+        y acepta issues y PRs.
+      </p>
+
+    </article>
+
+  </main>
+
+  <footer>
+    <p>
+      Luis Cueva Díaz ·
+      <a href="https://github.com/kiqdiaz" target="_blank" rel="noopener">@kiqdiaz</a>
+      · 2026
+    </p>
+  </footer>
+
+  <script>
+    // Mobile nav toggle
+    document.getElementById('navToggle').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+    // Back button: go to blog tab if coming from SPA
+    document.getElementById('backBtn').addEventListener('click', e => {
+      if (document.referrer.includes('kiqdiaz.github.io') || document.referrer.includes('localhost')) {
+        e.preventDefault();
+        history.back();
+      }
+    });
+  </script>
+</body>
+</html>
