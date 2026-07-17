@@ -176,16 +176,14 @@
     <article class="article-body">
 
       <p>
-        Cualquier desarrollador que ha trabajado en un sistema con datos reales —un
-        Django, un Rails, el stack que sea— conoce la fricción: para responder algo
-        tan simple como "¿cuántos pedidos se cancelaron la semana pasada y por qué?"
+        Cuentas con una base de datos y necesitas hacerle diversos tipos de preguntas como: "¿cuántos pedidos se cancelaron la semana pasada y por qué?". Bajo el escenario tradicional,
         terminas escribiendo un query a mano o navegando el admin a punta de clics y
-        filtros. Quería resolver eso: poder preguntarle a mi sistema en lenguaje
+        filtros. y como soy muy flojo, quería resolver eso: poder preguntarle a mi sistema en lenguaje
         natural y que él mismo genere y ejecute el SQL correcto.
       </p>
 
       <p>
-        Lo interesante no fue el "qué" sino el "con qué modelo". Empecé con
+        Había escuchado hace poco a través de un podcast sobre este tema y quise ponerme manos a la obra con una demo. Una de las primeras preguntas "con qué modelo trabajo?" y le siguió "qué capacidad de cómputo tengo?, será suficiente para un modelo que pueda responder bien y rápido?". Empecé con
         <strong>Llama 3.2</strong>, que resultó demasiado limitado: apenas el query
         pedía un join o un group by, alucinaba columnas que no existían. Probé
         <strong>DeepSeek-R1</strong> esperando mejor razonamiento, y lo tuvo — de
